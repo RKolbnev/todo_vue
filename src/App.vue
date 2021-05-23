@@ -3,14 +3,13 @@
     <app-header></app-header>
     <div class="main-content">
       <app-aside
-        :folders="folders"
-        @openFolder="openFolder"
-        @addFolder="addFolder"
-        @addTask="addTask"
-        @checkTask="checkTask"
-        @deleteTask="deleteTask"
-      ></app-aside>
-      <app-main></app-main>
+        :lists="lists"
+        @addList="addItem"
+        @addTask="addItem">
+      </app-aside>
+      <app-main
+        :task="activeTask">
+      </app-main>
     </div>
   </div>
 </template>
@@ -23,53 +22,9 @@ import AppAside from './components/AppAside'
 export default {
   data () {
     return {
-      folders: [
-        {
-          title: 'Test folder 1',
-          id: 1,
-          tasks: [
-            {
-              title: 'Task name 1',
-              id: 1,
-              state: false,
-              notes: 'alskdl kansdlk asdk a;sld a',
-              checklist: [
-                {
-                  desc: 'lkajsdlkjasd',
-                  state: false
-                },
-                {
-                  desc: 'asdl asdl s',
-                  state: true
-                }
-              ]
-            },
-            {
-              title: 'Task name 2',
-              id: 2,
-              state: false,
-              notes: 'alskdl kansdlk asdk a;sld a',
-              checklist: [
-                {
-                  desc: 'lkajsdlkjasd',
-                  state: false
-                },
-                {
-                  desc: 'asdl asdl s',
-                  state: true
-                }
-              ]
-            }
-          ],
-          isOpen: false
-        },
-        {
-          title: 'Folder2',
-          id: 2,
-          tasks: [],
-          isOpen: false
-        }
-      ]
+      link: 'http://todo-vue-e2829-default-rtdb.firebaseio.com/todo.json',
+      lists: null,
+      activeTask: null
     }
   },
   components: {
@@ -78,59 +33,57 @@ export default {
     'app-main': AppMain
   },
   methods: {
-    openFolder (id) {
-      this.folders.forEach((folder, i) => {
-        if (folder.id === id) {
-          this.folders[i].isOpen = !this.folders[i].isOpen
-        }
-      })
+    addItem (value, path = []) {
+      // Создаем экземпляр данных
+      const body = {
+        id: this.idGenerate(),
+        title: value
+      }
+      console.log(this.lists.target)
+      // добавляем данные в структуру
+      let level = this.lists ?? {}
+      for (let i = 0; i < path.length; i++) {
+        level = level[i]
+      }
+      level[body.id] = body
+      this.lists = level
+
+      this.sendData(body, path)
     },
-    addFolder (newFolder) {
-      this.folders.push(newFolder)
+    idGenerate () {
+      const id = String(Math.random())
+        .split('')
+        .map(i => {
+          if (i === '.') {
+            return '_'
+          } else {
+            return String.fromCharCode(+i + 66)
+          }
+        })
+        .join('')
+      return id
     },
-    addTask (folderId, newTask) {
-      this.folders.forEach((folder, i) => {
-        if (folder.id === folderId) {
-          this.folders[i].tasks.push(newTask)
-        }
-      })
-    },
-    checkTask (folderId, taskId) {
-      this.folders.forEach((folder, idx) => {
-        if (folder.id === folderId) {
-          folder.tasks.forEach((task, i) => {
-            if (task.id === taskId) {
-              this.folders[idx].tasks[i].state = !this.folders[idx].tasks[i].state
-            }
-          })
-        }
-      })
-    },
-    deleteTask (folderId, taskId) {
-      this.folders.forEach((folder, idx) => {
-        if (folder.id === folderId) {
-          folder.tasks.forEach((task, i) => {
-            if (task.id === taskId) {
-              this.folders[idx].tasks.splice(i, 1)
-            }
-          })
-        }
+    async sendData (body, path) {
+      // изменяем путь и отправляем данные на сервер
+      path.push(body.id)
+      path = path.map(id => `/${id}`).join('')
+      const link = this.link.replace(/\.json/, `${path}.json`)
+
+      await fetch(link, {
+        method: 'PATCH',
+        headers: { 'Content-type': 'application/json' },
+        body: JSON.stringify(body)
       })
     }
+  },
+  computed: {},
+  async beforeMount () {
+    const res = await fetch(this.link)
+    this.lists = await res.json()
   }
 }
 </script>
 
-<style lang="sass">
-body
-  margin: 0
-  padding: 0
-  font-size: 14px
-  font-family: Arial, Helvetica, sans-serif
-  font-weight: normal
-  box-sizing: border-box
-.main-content
-  display: flex
-  flex-direction: row
-  flex-wrap: nowrap
+<style>
+
 </style>
