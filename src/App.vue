@@ -1,11 +1,15 @@
-<template>
+  <template>
   <div>
     <app-header></app-header>
     <div class="main-content">
       <app-aside
         :lists="lists"
         @addList="addItem"
-        @addTask="addItem">
+        @addTask="addItem"
+        @showTask="showTask"
+        @checkTask="checkTask"
+        @deleteTask="deleteTask"
+        >
       </app-aside>
       <app-main
         :task="activeTask">
@@ -33,39 +37,39 @@ export default {
     'app-main': AppMain
   },
   methods: {
-    addItem (value, path = []) {
-      // Создаем экземпляр данных
-      const body = {
-        id: this.idGenerate(),
-        title: value
-      }
-      console.log(this.lists.target)
-      // добавляем данные в структуру
-      let level = this.lists ?? {}
-      for (let i = 0; i < path.length; i++) {
-        level = level[i]
-      }
-      level[body.id] = body
-      this.lists = level
+    addItem (body, path = []) {
+      // Правим экземпляр данных
+      body.id = Date.now()
+      path.push(body.id)
 
+      // добавляем данные в структуру
+      this.lists ??= {}
+      if (path.length === 1) this.lists[body.id] = body
+      if (path.length > 2) {
+        if (!this.lists[path[0]]?.tasks) {
+          this.lists[path[0]].tasks = {}
+        }
+        this.lists[path[0]].tasks[body.id] = body
+      }
+
+      // Отправляем данные
       this.sendData(body, path)
     },
-    idGenerate () {
-      const id = String(Math.random())
-        .split('')
-        .map(i => {
-          if (i === '.') {
-            return '_'
-          } else {
-            return String.fromCharCode(+i + 66)
-          }
-        })
-        .join('')
-      return id
+    checkTask (idList, idTask) {
+      this.lists[idList].tasks[idTask].state = !this.lists[idList].tasks[idTask].state
+      this.sendData({
+        state: this.lists[idList].tasks[idTask].state
+      }, [idList, 'tasks', idTask])
+    },
+    showTask (idList, idTask) {
+      this.activeTask = this.lists[idList].tasks[idTask]
+    },
+    deleteTask (idList, idTask) {
+      this.deleteData([idList, 'tasks', idTask])
+      delete this.lists[idList].tasks[idTask]
     },
     async sendData (body, path) {
       // изменяем путь и отправляем данные на сервер
-      path.push(body.id)
       path = path.map(id => `/${id}`).join('')
       const link = this.link.replace(/\.json/, `${path}.json`)
 
@@ -74,9 +78,15 @@ export default {
         headers: { 'Content-type': 'application/json' },
         body: JSON.stringify(body)
       })
+    },
+    async deleteData (path) {
+      path = path.map((id) => `/${id}`).join('')
+      const link = this.link.replace(/\.json/, `/${path}.json`)
+
+      const res = await fetch(link, { method: 'DELETE' })
+      if (res.ok) console.log('Task is delete')
     }
   },
-  computed: {},
   async beforeMount () {
     const res = await fetch(this.link)
     this.lists = await res.json()

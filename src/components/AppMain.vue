@@ -2,17 +2,18 @@
   <div class="main">
     <div v-if="task" class="main__1">
       <div class="main-header" @click="checkTask">
-        <img v-if="!task.state" src="../assets/no-check.png" alt="" />
-        <img v-else src="../assets/check.png" alt="" />
+        <!-- <img v-if="!task.state" src="../assets/no-check.png" alt="" /> -->
+        <!-- <img v-else src="../assets/check.png" alt="" /> -->
         <span :class="{ 'task-title': true, checked: task.state }">
           {{ task.title }}
         </span>
         <span class="task-delete" @click="deleteTask">
-          <img src="../assets/basket.png" alt="" />
+          <!-- <img src="../assets/basket.png" alt="" /> -->
         </span>
       </div>
       <div class="main-content">
         <div class="main-checkbox" @click="addStep">
+          <div class="steps"></div>
           <img src="../assets/plus.png" alt="">
           <span>Добавить шаг</span>
         </div>
@@ -30,9 +31,20 @@
 </template>
 
 <script>
+// import TheAdd from './TheAdd'
+
 export default {
   props: {
     task: Object
+  },
+  // components: {
+  //   'the-add': TheAdd
+  // },
+  data () {
+    return {
+      inputState: false,
+      inputValue: ''
+    }
   },
   methods: {
     changeNotes (e) {

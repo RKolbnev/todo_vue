@@ -16,10 +16,16 @@
     justify-content: space-between
     align-items: center
     padding: 0 0.25rem
+    padding-top: 0.25rem
   &-img, &-btn
     flex-basis: 10%
     & img
-      width: 1.5rem
+      width: 1.3rem
+  &-btn > img
+    width: 1rem
+    transition: 0.5s
+  &__open
+    transform: rotate(180deg)
   &-title
     flex-basis: 70%
 .add-task

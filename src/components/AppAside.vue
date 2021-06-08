@@ -10,10 +10,12 @@
     </div>
     <div class="scroll">
       <the-list
-        v-for="list in lists"
+        v-for="list in sortList"
         :key="list.id"
         :list="list"
-        @addTask="addTask">
+        @addTask="addTask"
+        @taskEvent="taskEvent"
+        >
       </the-list>
       <div v-if="!lists" class="no-list">
         У вас нет списков с задачами
@@ -29,7 +31,7 @@ export default {
   props: {
     lists: Object
   },
-  emits: ['addList', 'addTask'],
+  emits: ['addList', 'addTask', 'showTask', 'checkTask', 'deleteTask'],
   data () {
     return {
       input: ''
@@ -40,14 +42,33 @@ export default {
   },
   methods: {
     addList () {
-      this.$emit('addList', this.input)
-      this.input = ''
+      if (this.input.length > 0) {
+        const body = {
+          id: null,
+          title: this.input,
+          tasks: null
+        }
+        this.$emit('addList', body)
+        this.input = ''
+      }
     },
-    addTask (value, path) {
-      this.$emit('addTask', value, path)
-      console.log(value, path)
+    addTask (body, path) {
+      this.$emit('addTask', body, path)
+    },
+    taskEvent (event, idList, idTask) {
+      this.$emit(event, idList, idTask)
     }
   }
+  // computed: {
+  //   sortList () {
+  //     if (this.lists) {
+  //       let arr = Object.entries(this.lists)
+  //       arr = arr.sort((a, b) => a[0] - b[0])
+  //         .map(item => item[1])
+  //       return arr
+  //     }
+  //   }
+  // }
 
 }
 </script>

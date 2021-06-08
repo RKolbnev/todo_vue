@@ -1,16 +1,25 @@
 <template>
-  <div class="task">
-    <span class="task-state" @click="checkTask">
-      <img :src="isCheck" alt="" />
-      <!-- <img v-if="!task.state" src="../assets/no-check.png" alt="" /> -->
-      <!-- <img v-else src="../assets/check.png" alt="" /> -->
+  <div class="task"
+    v-if="!deleteBtn"
+    @click.right.prevent="deleteBtn = !deleteBtn"
+  >
+    <div>
+      <input type="checkbox" :id="task.id" :checked="task.state">
+      <span></span>
+    </div>
+    <span
+      :class="{
+        'task-text': true,
+        'checked': task.state
+      }">
+      {{task.title}}
     </span>
-    <span :class="{ 'task-title': true, checked: task.state }">
-      {{ task.title }}
-    </span>
-    <span class="task-delete" @click="deleteTask">
-      <img src="../assets/close.png" alt="" />
-    </span>
+  </div>
+  <div v-else
+    class="delete__button"
+    @click.right.prevent="deleteBtn = !deleteBtn"
+  >
+    <button>Удалить задачу</button>
   </div>
 </template>
 
@@ -19,21 +28,11 @@ export default {
   props: {
     task: Object
   },
-  emits: ['deleteTask', 'checkTask'],
   data () {
     return {
-      src: ''
+      deleteBtn: false
     }
-  },
-  methods: {
-    deleteTask () {
-      this.$emit('deleteTask', this.task.id)
-    },
-    checkTask () {
-      this.$emit('checkTask', this.task.id)
-    }
-  },
-  computed: {}
+  }
 }
 </script>
 

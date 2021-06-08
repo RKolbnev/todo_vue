@@ -1,63 +1,70 @@
 <template>
   <div class="list">
-    <div
-      :class="{ 'list-name': true, 'list-name__open': isOpen }"
+    <div :class="{ 'list-name': true, 'list-name__open': isOpen }"
       @click="isOpen = !isOpen">
       <span class="list-img">
         <img src="../assets/list-icon.png" alt="list"/>
       </span>
-      <span class="list-title">{{ list.title }}</span>
+      <span class="list-title">
+        {{ list.title }}
+      </span>
       <span class="list-btn">
-        <img src="../assets/menu-icon.png" alt="menu"/>
+        <img :class="{'list__open': isOpen}" src="../assets/arrow.png" alt="menu"/>
       </span>
     </div>
     <div class="list-tasks" v-if="isOpen">
       <the-task
         v-for="task in list.tasks"
         :key="task.id"
-        :task="task">
+        :task="task"
+        @click="taskEvent($event, task.id)">
       </the-task>
-      <div class="add-task"
-        v-if="!inputState"
-        @click="inputState = !inputState">
-        <img src="../assets/add-task.png" alt="Добавить задачу" />
-        <span>Добавить задачу</span>
-      </div>
-      <div class="input-item"
-        v-else>
-        <input type="text"
-          @keyup.enter="addTask"
-          v-model="inputValue"/>
-        <button
-          @click="addTask">Добавить</button>
-      </div>
+      <the-add
+        @addTask="addTask"
+        :property="['add-task2', 'Добавить задачу']"
+      ></the-add>
     </div>
   </div>
 </template>
 
 <script>
 import TheTask from './TheTask'
+import TheAdd from './TheAdd'
 
 export default {
   props: {
     list: Object
   },
   components: {
-    'the-task': TheTask
+    'the-task': TheTask,
+    'the-add': TheAdd
   },
-  emits: ['addTask'],
+  emits: ['addTask', 'taskEvent'],
 
   data () {
     return {
-      inputValue: '',
-      inputState: false,
       isOpen: false
     }
   },
   methods: {
-    addTask () {
-      this.$emit('addTask', this.inputValue, [this.list.id])
-      this.inputValue = ''
+
+    addTask (title) {
+      const body = {
+        id: null,
+        title,
+        state: false,
+        note: '',
+        steps: null
+      }
+      const path = [this.list.id, 'tasks']
+      this.$emit('addTask', body, path)
+    },
+    taskEvent (event, id) {
+      console.log(event.target)
+      const elem = ['SPAN', 'INPUT', 'BUTTON']
+      const emit = ['showTask', 'checkTask', 'deleteTask']
+      const idx = elem.indexOf(event.target.tagName)
+      this.$emit('taskEvent', emit[idx], this.list.id, id)
     }
   }
 }

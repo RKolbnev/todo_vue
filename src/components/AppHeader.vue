@@ -10,8 +10,8 @@
     <div class="github-link">
       <div class="github-link__moon">
         <img class='moon' src="../assets/moon.png" alt="">
-        <img class="github-logo" src="../assets/github-logo.png" alt="">
       </div>
+        <span></span>
     </div>
   </div>
 </template>
