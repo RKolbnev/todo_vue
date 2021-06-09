@@ -12,7 +12,14 @@
         >
       </app-aside>
       <app-main
-        :task="activeTask">
+        :task="activeTask"
+        @checkTask="checkTask(activeTask.path[0], activeTask.path[2])"
+        @deleteTask="deleteTask(activeTask.path[0], activeTask.path[2])"
+        @addStep="addStep"
+        @changeNotes="sendChanges"
+        @checkStep="checkStep"
+        @deleteStep="deleteStep"
+        >
       </app-main>
     </div>
   </div>
@@ -37,7 +44,7 @@ export default {
     'app-main': AppMain
   },
   methods: {
-    addItem (body, path = []) {
+    addItem (body, path = []) { //! Оптимизировать для отправки всех видов
       // Правим экземпляр данных
       body.id = Date.now()
       path.push(body.id)
@@ -55,19 +62,49 @@ export default {
       // Отправляем данные
       this.sendData(body, path)
     },
-    checkTask (idList, idTask) {
+    showTask (idList, idTask) { //! Подумать над улучшением
+      const active = {
+        path: [idList, 'tasks', idTask],
+        parentName: this.lists[idList].title,
+        task: this.lists[idList].tasks[idTask]
+      }
+      this.activeTask = active
+    },
+    checkTask (idList, idTask) { //! Оптимизировать для шагов
       this.lists[idList].tasks[idTask].state = !this.lists[idList].tasks[idTask].state
       this.sendData({
         state: this.lists[idList].tasks[idTask].state
       }, [idList, 'tasks', idTask])
     },
-    showTask (idList, idTask) {
-      this.activeTask = this.lists[idList].tasks[idTask]
-    },
-    deleteTask (idList, idTask) {
+    deleteTask (idList, idTask) { //! Оптимизировать для шагов
       this.deleteData([idList, 'tasks', idTask])
       delete this.lists[idList].tasks[idTask]
+      this.activeTask = null
     },
+    sendChanges (value) { //! Сменить название и изменить работу функции (не стоит добавать html)
+      this.activeTask.task.note = value
+      this.sendData({ note: value }, this.activeTask.path)
+    },
+    addStep (body) { //! Объеденить с добавлением задач
+      body.id = Date.now()
+      if (!this.activeTask.task?.steps) {
+        this.activeTask.task.steps = {}
+      }
+      this.activeTask.task.steps[body.id] = body
+      this.sendData({ steps: this.activeTask.task.steps }, this.activeTask.path)
+    },
+    checkStep (id) { //! Объеденить с добавлением задач
+      this.activeTask.task.steps[id].state = !this.activeTask.task.steps[id].state
+      this.sendData({ steps: this.activeTask.task.steps }, this.activeTask.path)
+    },
+    deleteStep (id) { //! Объеденить с добавлением задач
+      delete this.activeTask.task.steps[id]
+      this.deleteData([...this.activeTask.path, 'steps', id])
+      if (Object.keys(this.activeTask.task.steps).length < 1) {
+        this.activeTask.task.steps = null
+      }
+    },
+
     async sendData (body, path) {
       // изменяем путь и отправляем данные на сервер
       path = path.map(id => `/${id}`).join('')
@@ -78,6 +115,7 @@ export default {
         headers: { 'Content-type': 'application/json' },
         body: JSON.stringify(body)
       })
+      console.log('Send')
     },
     async deleteData (path) {
       path = path.map((id) => `/${id}`).join('')

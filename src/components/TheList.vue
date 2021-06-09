@@ -21,7 +21,7 @@
       </the-task>
       <the-add
         @addTask="addTask"
-        :property="['add-task2', 'Добавить задачу']"
+        :property="addSettings"
       ></the-add>
     </div>
   </div>
@@ -43,11 +43,15 @@ export default {
 
   data () {
     return {
-      isOpen: false
+      isOpen: false,
+      addSettings: {
+        logo: 'add-task2',
+        text: 'Добавить задачу',
+        buttonClass: 'add-task'
+      }
     }
   },
   methods: {
-
     addTask (title) {
       const body = {
         id: null,
@@ -60,11 +64,12 @@ export default {
       this.$emit('addTask', body, path)
     },
     taskEvent (event, id) {
-      console.log(event.target)
       const elem = ['SPAN', 'INPUT', 'BUTTON']
       const emit = ['showTask', 'checkTask', 'deleteTask']
       const idx = elem.indexOf(event.target.tagName)
-      this.$emit('taskEvent', emit[idx], this.list.id, id)
+      if (idx !== -1) {
+        this.$emit('taskEvent', emit[idx], this.list.id, id)
+      }
     }
   }
 }

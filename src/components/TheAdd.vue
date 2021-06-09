@@ -1,10 +1,10 @@
 <template>
   <div>
-    <div class="add-task"
+    <div :class="property.buttonClass"
       v-if="!inputState"
       @click="inputState = !inputState">
-      <img :src="require(`../assets/${property[0]}.png`)"/>
-      <span>{{property[1]}}</span>
+      <img :src="require(`../assets/${property.logo}.png`)"/>
+      <span>{{property.text}}</span>
     </div>
     <div class="input-item"
       v-else>
@@ -23,7 +23,7 @@
 export default {
   emits: ['addTask'],
   props: {
-    property: Array
+    property: Object
   },
   data () {
     return {

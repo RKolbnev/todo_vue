@@ -57,18 +57,18 @@ export default {
     },
     taskEvent (event, idList, idTask) {
       this.$emit(event, idList, idTask)
+    },
+    // },
+    // computed: {
+    sortList () {
+      if (this.lists) {
+        let arr = Object.entries(this.lists)
+        arr = arr.sort((a, b) => a[0] - b[0])
+          .map(item => item[1])
+        return arr
+      }
     }
   }
-  // computed: {
-  //   sortList () {
-  //     if (this.lists) {
-  //       let arr = Object.entries(this.lists)
-  //       arr = arr.sort((a, b) => a[0] - b[0])
-  //         .map(item => item[1])
-  //       return arr
-  //     }
-  //   }
-  // }
 
 }
 </script>
