@@ -10,7 +10,7 @@
     </div>
     <div class="scroll">
       <the-list
-        v-for="list in sortList"
+        v-for="list in sortList()"
         :key="list.id"
         :list="list"
         @addTask="addTask"
@@ -58,8 +58,6 @@ export default {
     taskEvent (event, idList, idTask) {
       this.$emit(event, idList, idTask)
     },
-    // },
-    // computed: {
     sortList () {
       if (this.lists) {
         let arr = Object.entries(this.lists)
