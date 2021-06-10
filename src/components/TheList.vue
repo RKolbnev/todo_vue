@@ -2,8 +2,11 @@
   <div class="list">
     <div :class="{ 'list-name': true, 'list-name__open': isOpen }"
       @click="isOpen = !isOpen">
-      <span class="list-img">
-        <img src="../assets/list-icon.png" alt="list"/>
+      <span class="list-img"
+      @click="deleteList"
+      @mouseenter="showDelete='basket3'"
+      @mouseleave="showDelete='list-icon'">
+        <img :src="require(`../assets/${showDelete}.png`)" alt="list"/>
       </span>
       <span class="list-title">
         {{ list.title }}
@@ -39,11 +42,12 @@ export default {
     'the-task': TheTask,
     'the-add': TheAdd
   },
-  emits: ['addTask', 'taskEvent'],
+  emits: ['deleteList', 'addTask', 'taskEvent'],
 
   data () {
     return {
       isOpen: false,
+      showDelete: 'list-icon',
       addSettings: {
         logo: 'add-task2',
         text: 'Добавить задачу',
@@ -52,7 +56,7 @@ export default {
     }
   },
   methods: {
-    addTask (title) {
+    addTask (title) { //*
       const body = {
         id: null,
         title,
@@ -63,9 +67,14 @@ export default {
       const path = [this.list.id, 'tasks']
       this.$emit('addTask', body, path)
     },
-    taskEvent (event, id) {
-      const elem = ['SPAN', 'INPUT', 'BUTTON']
-      const emit = ['showTask', 'checkTask', 'deleteTask']
+    deleteList () { //*
+      if (this.showDelete === 'basket3') {
+        this.$emit('deleteList', [this.list.id])
+      }
+    },
+    taskEvent (event, id) { //*
+      const elem = ['SPAN', 'BUTTON']
+      const emit = ['showTask', 'deleteTask']
       const idx = elem.indexOf(event.target.tagName)
       if (idx !== -1) {
         this.$emit('taskEvent', emit[idx], this.list.id, id)

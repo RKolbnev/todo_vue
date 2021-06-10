@@ -6,21 +6,18 @@
         :lists="lists"
         @addList="addItem"
         @addTask="addItem"
-        @showTask="showTask"
-        @checkTask="checkTask"
-        @deleteTask="deleteTask"
-        >
+        @deleteList="deleteItem"
+        @deleteTask="deleteItem"
+        @showTask="showTask">
       </app-aside>
       <app-main
-        :task="activeTask"
-        @checkTask="checkTask(activeTask.path[0], activeTask.path[2])"
-        @deleteTask="deleteTask(activeTask.path[0], activeTask.path[2])"
-        @addStep="addStep"
-        @changeNotes="sendChanges"
-        @checkStep="checkStep"
-        @deleteStep="deleteStep"
-        >
+        :info="activeTask"
+        @addStep="addItem"
+        @checkItem="checkItem"
+        @deleteItem="deleteItem"
+        @changeNotes="changeNotes">
       </app-main>
+      <app-form></app-form>
     </div>
   </div>
 </template>
@@ -29,6 +26,7 @@
 import AppHeader from './components/AppHeader.vue'
 import AppMain from './components/AppMain'
 import AppAside from './components/AppAside'
+import AppForm from './components/AppForm'
 
 export default {
   data () {
@@ -41,68 +39,66 @@ export default {
   components: {
     'app-header': AppHeader,
     'app-aside': AppAside,
-    'app-main': AppMain
+    'app-main': AppMain,
+    'app-form': AppForm
   },
   methods: {
-    addItem (body, path = []) { //! Оптимизировать для отправки всех видов
+    addItem (body, path = []) {
       // Правим экземпляр данных
       body.id = Date.now()
-      path.push(body.id)
 
       // добавляем данные в структуру
+      const len = path.length - 1
       this.lists ??= {}
-      if (path.length === 1) this.lists[body.id] = body
-      if (path.length > 2) {
-        if (!this.lists[path[0]]?.tasks) {
-          this.lists[path[0]].tasks = {}
-        }
-        this.lists[path[0]].tasks[body.id] = body
+      let item = this.lists
+
+      for (let i = 0; i <= len - 1; i++) {
+        item = item[path[i]]
       }
+      if (path.length > 1) {
+        item[path[len]] = item[path[len]] ?? {}
+        item = item[path[len]]
+      }
+      item[body.id] = body
 
       // Отправляем данные
+      path.push(body.id)
       this.sendData(body, path)
     },
-    showTask (idList, idTask) { //! Подумать над улучшением
+    deleteItem (path, flag) {
+      let item = this.lists
+      for (let i = 0; i <= path.length - 2; i++) {
+        item = item[path[i]]
+      }
+
+      delete item[path[path.length - 1]]
+      this.deleteData(path)
+
+      if (flag && this.activeTask?.task?.id === path[path.length - 1]) {
+        this.activeTask = null
+      }
+    },
+    checkItem (path) {
+      let item = this.activeTask.task
+      if (path.length === 0) {
+        item.state = !item.state
+      } else {
+        item = item[path[0]][path[1]]
+        item.state = !item.state
+      }
+      this.sendData({ state: item.state }, [...this.activeTask.path, ...path])
+    },
+    showTask (path) {
       const active = {
-        path: [idList, 'tasks', idTask],
-        parentName: this.lists[idList].title,
-        task: this.lists[idList].tasks[idTask]
+        path,
+        task: this.lists[path[0]][path[1]][path[2]]
       }
       this.activeTask = active
     },
-    checkTask (idList, idTask) { //! Оптимизировать для шагов
-      this.lists[idList].tasks[idTask].state = !this.lists[idList].tasks[idTask].state
-      this.sendData({
-        state: this.lists[idList].tasks[idTask].state
-      }, [idList, 'tasks', idTask])
-    },
-    deleteTask (idList, idTask) { //! Оптимизировать для шагов
-      this.deleteData([idList, 'tasks', idTask])
-      delete this.lists[idList].tasks[idTask]
-      this.activeTask = null
-    },
-    sendChanges (value) { //! Сменить название и изменить работу функции (не стоит добавать html)
+
+    changeNotes (value) { //! изменить работу функции (не стоит добавать html)
       this.activeTask.task.note = value
       this.sendData({ note: value }, this.activeTask.path)
-    },
-    addStep (body) { //! Объеденить с добавлением задач
-      body.id = Date.now()
-      if (!this.activeTask.task?.steps) {
-        this.activeTask.task.steps = {}
-      }
-      this.activeTask.task.steps[body.id] = body
-      this.sendData({ steps: this.activeTask.task.steps }, this.activeTask.path)
-    },
-    checkStep (id) { //! Объеденить с добавлением задач
-      this.activeTask.task.steps[id].state = !this.activeTask.task.steps[id].state
-      this.sendData({ steps: this.activeTask.task.steps }, this.activeTask.path)
-    },
-    deleteStep (id) { //! Объеденить с добавлением задач
-      delete this.activeTask.task.steps[id]
-      this.deleteData([...this.activeTask.path, 'steps', id])
-      if (Object.keys(this.activeTask.task.steps).length < 1) {
-        this.activeTask.task.steps = null
-      }
     },
 
     async sendData (body, path) {

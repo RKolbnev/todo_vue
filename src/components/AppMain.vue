@@ -1,37 +1,37 @@
 <template>
   <div class="main">
-    <div v-if="task" :id="task.task.id" class="main__1">
+    <div v-if="info" :id="info.task.id" class="main__1">
       <div class="main-header" >
         <input type="checkbox"
-        :checked="task.task.state"
-        @click="checkTask">
+        :checked="info.task.state"
+        @click="checkItem(false)">
         <span class="main-header__input"></span>
         <span
           :class="{
             'main-header__text': true,
-            'checked': task.task.state
+            'checked': info.task.state
           }">
-          {{task.task.title}}
+          {{info.task.title}}
         </span>
         <span class="main-header__delete"
-          @click="deleteTask">
+          @click="deleteItem(false)">
           <img src="../assets/basket.png">
           <span>Удалить задачу</span>
         </span>
       </div>
       <div class="main-content">
         <div class="main-checkbox shadow">
-          <div class="steps" v-if="task.task.steps">
+          <div class="steps" v-if="info.task.steps">
             <div class="step"
-              v-for="step in task.task.steps"
+              v-for="step in info.task.steps"
               :key="step.id">
               <input type="checkbox"
                 :checked="step.state"
-                @click="checkStep(step.id)">
+                @click="checkItem(step.id)">
               <span class="step__input"></span>
               <span class="step__title">{{step.title}}</span>
               <span class="step__delete"
-                @click="deleteStep(step.id)">
+                @click="deleteItem(step.id)">
                 &times;
               </span>
             </div>
@@ -49,7 +49,7 @@
           <div
             contenteditable="true"
             class="main-notes__content"
-            v-html="task.task.note"
+            v-html="info.task.note"
             @input="changeNotes">
           </div>
         </div>
@@ -63,9 +63,9 @@ import TheAdd from './TheAdd'
 
 export default {
   props: {
-    task: Object
+    info: Object
   },
-  emits: ['changeNotes', 'checkTask', 'deleteTask', 'addStep', 'checkStep', 'deleteStep'],
+  emits: ['addStep', 'deleteItem', 'changeNotes', 'checkItem'],
   components: {
     'the-add': TheAdd
   },
@@ -81,31 +81,34 @@ export default {
     }
   },
   methods: {
-    changeNotes (e) {
+    changeNotes (e) { //!
       clearTimeout(this.notesTimeoutId)
       this.notesTimeoutId = setTimeout(() => {
         this.$emit('changeNotes', e.target.innerHTML)
       }, 3000)
     },
+
     addStep (value) {
       const body = {
         id: null,
         title: value,
         state: false
       }
-      this.$emit('addStep', body)
+      this.$emit('addStep', body, [...this.info.path, 'steps'])
     },
-    checkTask () {
-      this.$emit('checkTask')
+    checkItem (id) {
+      const path = []
+      if (id) {
+        path.push('steps', id)
+      }
+      this.$emit('checkItem', path)
     },
-    deleteTask () {
-      this.$emit('deleteTask')
-    },
-    checkStep (id) {
-      this.$emit('checkStep', id)
-    },
-    deleteStep (id) {
-      this.$emit('deleteStep', id)
+    deleteItem (id) {
+      const path = [...this.info.path]
+      if (id) {
+        path.push('steps', id)
+      }
+      this.$emit('deleteItem', path, !id)
     }
   }
 }

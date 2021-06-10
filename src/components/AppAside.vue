@@ -13,9 +13,9 @@
         v-for="list in sortList()"
         :key="list.id"
         :list="list"
+        @deleteList="deleteList"
         @addTask="addTask"
-        @taskEvent="taskEvent"
-        >
+        @taskEvent="taskEvent">
       </the-list>
       <div v-if="!lists" class="no-list">
         У вас нет списков с задачами
@@ -31,7 +31,7 @@ export default {
   props: {
     lists: Object
   },
-  emits: ['addList', 'addTask', 'showTask', 'checkTask', 'deleteTask'],
+  emits: ['addList', 'deleteList', 'addTask', 'showTask', 'deleteTask'],
   data () {
     return {
       input: ''
@@ -52,13 +52,17 @@ export default {
         this.input = ''
       }
     },
+    deleteList (id) {
+      this.$emit('deleteList', id)
+    },
     addTask (body, path) {
       this.$emit('addTask', body, path)
     },
     taskEvent (event, idList, idTask) {
-      this.$emit(event, idList, idTask)
+      const flag = event === 'deleteTask'
+      this.$emit(event, [idList, 'tasks', idTask], flag)
     },
-    sortList () {
+    sortList () { //! Необходимо ли? Провеирть работу без нее.
       if (this.lists) {
         let arr = Object.entries(this.lists)
         arr = arr.sort((a, b) => a[0] - b[0])

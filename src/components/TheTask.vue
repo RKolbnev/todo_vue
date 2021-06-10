@@ -2,10 +2,7 @@
   <div class="task"
     v-if="!deleteBtn"
     @click.right.prevent="deleteBtn = !deleteBtn">
-    <div>
-      <input type="checkbox" :id="task.id" :checked="task.state">
-      <span></span>
-    </div>
+    <img src="../assets/turn-arrow.png" alt="">
     <span :class="{'task-text': true, 'checked': task.state}">
       {{task.title}}
     </span>

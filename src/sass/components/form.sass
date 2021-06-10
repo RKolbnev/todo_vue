@@ -1,0 +1,64 @@
+.form__wrap
+  position: absolute
+  z-index: 99
+  top: 0
+  left: 0
+  display: flex
+  // flex-direction: column
+  align-items: center
+  justify-content: center
+  width: 100vw
+  height: 100vh
+  background-color: #08080871
+
+.form
+  padding: 6rem 3rem
+  background-color: #fff
+  background: url('../assets/moon.png') no-repeat center;
+  background-size: 22rem
+  &__header
+    display: flex
+    flex-direction: column
+    justify-content: center
+    align-items: center
+    & div
+      overflow: hidden
+      display: flex
+      align-items: center
+      height: 4rem
+      & img
+        width: 15rem
+    & p
+      color: #294350
+      font-size: 1.2rem
+      text-shadow: 0px 5px 6px rgba(206,89,55,0), 0px 9px 4px #aba8a8, 1px 1px 0 #969696
+    & span
+      color: #294350
+      font-size: 1rem
+      text-shadow: 0px 11px 9px rgba(206,89,55,0), 0px -6px 4px #aba8a8, 0px -1px 0 #969696
+  &__content
+    display: flex
+    flex-direction: column
+    align-items: center
+    margin-top: 2rem
+    & input
+      padding: 0.25rem 1rem
+      margin-bottom: 0.5rem
+      text-align: center
+      border: none
+      border-radius: 0.5rem
+      box-shadow: 0px -6px 0px -1px #289FED, 0px -11px 0px -3px #5FB8FF, 0px -16px 0px -5px #A1D8FF, 0px -21px 0px -7px #CAE6FF, 0px -26px 0px -9px #E1EEFF, 5px 5px 15px 5px rgba(0,0,0,0)
+      &::placeholder
+        font-size: 1rem
+        text-align: center
+      &:focus
+        outline: none
+    & button
+      padding: 0.25rem 1rem
+      border: none
+      border-radius: 0.2rem
+      color: #3c4042
+      background-color: #4abedf
+      box-shadow: 0px -5px 0px -2px #289FED, 0px -10px 0px -4px #5FB8FF, 0px -15px 0px -7px #A1D8FF, 5px 5px 15px 5px rgba(0,0,0,0)
+
+
