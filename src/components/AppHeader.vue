@@ -4,21 +4,83 @@
       <img src="../assets/todo-logo.png" alt="">
     </div>
     <div class="search">
-      <input type="text">
-      <button class="btn"> Найти</button>
+      <div class="search__wrap">
+        <input type="text" v-model="searchValue" v-on:keyup.enter="search">
+        <button class="btn" @click="search">
+          Найти
+        </button>
+      </div>
+      <div class="search__popup scroll" v-if="show">
+        <div v-if="!data" class="preloader">
+          <img src="../assets/Rocket.gif" alt="">
+        </div>
+        <div
+          class="search__result"
+          v-else
+          v-for="(item, i) in parseData"
+          :key="item"
+          @click="showItem(i)">
+          <span>{{item.length === 2 ? item[0] : ''}}</span>
+          <span>{{item.length > 3 ? item : item[1]}}</span>
+        </div>
+        <button @click="show=false">Закрыть</button>
+      </div>
     </div>
-    <div class="github-link">
-      <div class="github-link__moon">
+    <div class="corner">
+      <div class="corner__moon">
         <img class='moon' src="../assets/moon.png" alt="">
       </div>
-        <span></span>
     </div>
   </div>
 </template>
 
 <script>
 export default {
-
+  props: {
+    data: Array
+  },
+  emits: ['search', 'showSearchRes'],
+  data () {
+    return {
+      searchValue: '',
+      show: false,
+      searchItems: {
+        tasks: 'Задача',
+        steps: 'Шаг'
+      }
+    }
+  },
+  methods: {
+    search () {
+      if (this.searchValue.length > 0) {
+        this.$emit('search', this.searchValue)
+        this.searchValue = ''
+        this.show = true
+      }
+    },
+    showItem (i) {
+      this.$emit('showSearchRes', this.data[i])
+      this.show = false
+    }
+  },
+  computed: {
+    parseData () {
+      let res = []
+      if (this.data.length === 1) {
+        res = this.data
+      } else {
+        for (let i = 0; i < this.data.length - 1; i++) {
+          const len = this.data[i].length
+          const title = this.searchItems[this.data[i][len - 4]] ?? 'Список'
+          const value = this.data[i][len - 1]
+          if (this.data[i][len - 2] === 'title') {
+            res.push([title, value])
+          }
+        }
+      }
+      return res
+    }
+  }
 }
 </script>
 

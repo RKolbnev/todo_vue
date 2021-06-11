@@ -56,7 +56,7 @@ export default {
     }
   },
   methods: {
-    addTask (title) { //*
+    addTask (title) {
       const body = {
         id: null,
         title,
@@ -67,12 +67,12 @@ export default {
       const path = [this.list.id, 'tasks']
       this.$emit('addTask', body, path)
     },
-    deleteList () { //*
+    deleteList () {
       if (this.showDelete === 'basket3') {
         this.$emit('deleteList', [this.list.id])
       }
     },
-    taskEvent (event, id) { //*
+    taskEvent (event, id) {
       const elem = ['SPAN', 'BUTTON']
       const emit = ['showTask', 'deleteTask']
       const idx = elem.indexOf(event.target.tagName)

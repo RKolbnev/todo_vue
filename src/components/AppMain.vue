@@ -21,7 +21,8 @@
       </div>
       <div class="main-content">
         <div class="main-checkbox shadow">
-          <div class="steps" v-if="info.task.steps">
+          <!-- <div class="steps" v-if="info.task.steps"> -->
+          <div class="steps" v-if="haveSteps()">
             <div class="step"
               v-for="step in info.task.steps"
               :key="step.id">
@@ -83,9 +84,9 @@ export default {
   methods: {
     changeNotes (e) { //!
       clearTimeout(this.notesTimeoutId)
-      this.notesTimeoutId = setTimeout(() => {
-        this.$emit('changeNotes', e.target.innerHTML)
-      }, 3000)
+      // this.notesTimeoutId = setTimeout(() => {
+      this.$emit('changeNotes', e.target.innerHTML)
+      // }, 500)
     },
 
     addStep (value) {
@@ -109,6 +110,13 @@ export default {
         path.push('steps', id)
       }
       this.$emit('deleteItem', path, !id)
+    },
+    haveSteps () {
+      let res
+      if (this.info.task?.steps) {
+        res = Object.entries(this.info.task?.steps)?.length > 0
+      }
+      return res
     }
   }
 }

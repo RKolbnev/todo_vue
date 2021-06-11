@@ -1,6 +1,10 @@
   <template>
   <div>
-    <app-header></app-header>
+    <app-header
+      :data="searchResult"
+      @search="search"
+      @showSearchRes='showTask'>
+    </app-header>
     <div class="main-content">
       <app-aside
         :lists="lists"
@@ -17,7 +21,6 @@
         @deleteItem="deleteItem"
         @changeNotes="changeNotes">
       </app-main>
-      <app-form></app-form>
     </div>
   </div>
 </template>
@@ -26,21 +29,20 @@
 import AppHeader from './components/AppHeader.vue'
 import AppMain from './components/AppMain'
 import AppAside from './components/AppAside'
-import AppForm from './components/AppForm'
 
 export default {
   data () {
     return {
       link: 'http://todo-vue-e2829-default-rtdb.firebaseio.com/todo.json',
       lists: null,
-      activeTask: null
+      activeTask: null,
+      searchResult: null
     }
   },
   components: {
     'app-header': AppHeader,
     'app-aside': AppAside,
-    'app-main': AppMain,
-    'app-form': AppForm
+    'app-main': AppMain
   },
   methods: {
     addItem (body, path = []) {
@@ -74,7 +76,8 @@ export default {
       delete item[path[path.length - 1]]
       this.deleteData(path)
 
-      if (flag && this.activeTask?.task?.id === path[path.length - 1]) {
+      if ((flag && this.activeTask?.task?.id === path[path.length - 1]) ||
+           (path.length === 1 && path[0] === this.activeTask?.path[0])) {
         this.activeTask = null
       }
     },
@@ -99,6 +102,36 @@ export default {
     changeNotes (value) { //! изменить работу функции (не стоит добавать html)
       this.activeTask.task.note = value
       this.sendData({ note: value }, this.activeTask.path)
+    },
+
+    async search (value) {
+      await fetch(this.link)
+        .then(data => data.json())
+        .then(data => searching(data, value))
+        .then(data => {
+          if (data.length === 0) {
+            this.searchResult = ['Поиск не дал результатов']
+          } else {
+            this.searchResult = data
+          }
+        })
+
+      function searching (data, value) {
+        const path = []
+
+        for (const key in data) {
+          if ((typeof data[key] === 'object' && data[key] !== null)) {
+            const res = searching(data[key], value)
+            if (res.length > 0) {
+              res.map(i => i.unshift(key))
+              path.push(...res)
+            }
+          } else if (String(data[key]).indexOf(value) !== -1) {
+            path.push([key, data[key]])
+          }
+        }
+        return path
+      }
     },
 
     async sendData (body, path) {
