@@ -1,6 +1,7 @@
 <template>
-  <aside class="aside">
-    <div class="add-list">
+  <aside class="aside hide__aside">
+    <div class="menu" @click="showAside"></div>
+    <div class="add-list" >
       <input
         type="text"
         placeholder="Введите название"
@@ -62,7 +63,10 @@ export default {
       const flag = event === 'deleteTask'
       this.$emit(event, [idList, 'tasks', idTask], flag)
     },
-    sortList () { //! Необходимо ли? Провеирть работу без нее.
+    showAside (e) {
+      e.target.parentElement.classList.toggle('hide__aside')
+    },
+    sortList () {
       if (this.lists) {
         let arr = Object.entries(this.lists)
         arr = arr.sort((a, b) => a[0] - b[0])

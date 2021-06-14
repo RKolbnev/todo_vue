@@ -2,6 +2,8 @@
   .corner
     display: none
   .main
+    min-height: 81vh
+    height: fit-content
     .main
       &-content
         flex-direction: column
@@ -13,4 +15,56 @@
           display: none
   .aside
     height: auto
-// @media screen and ( max-width: 600px)
+@media screen and ( max-width: 600px)
+  .aside
+    width: 60%
+    & div.input-item
+      flex-direction: column
+      & input
+        margin-right: 0
+        margin-bottom: 0.5rem
+  .add-list
+    flex-direction: column
+    & input
+      margin-right: 0
+      margin-bottom: 0.5rem
+  .list-title
+    flex-basis: 0
+    flex-shrink: 0
+    flex-grow:
+  .add-task
+    flex-direction: column
+    align-items: center
+  .logo
+    overflow: hidden
+    flex-basis: auto
+    width: 14rem
+    margin-left: -8%
+    margin-right: 6%
+@media screen and ( max-width: 500px)
+  .hide__aside
+    margin-left: -60vw
+  .aside
+    position: absolute
+    z-index: 2
+    height: 83.5vh
+    background: #6d828c
+    & div.scroll
+      height: 85%
+    & div.menu
+      cursor: pointer
+      content: ''
+      position: absolute
+      display: block
+      width: 2rem
+      height: 2rem
+      padding: 0.2rem
+      margin-left: 90%
+      background: url('../assets/menu.png') no-repeat center
+      background-size: 3rem
+      background-color: #6d828c
+      &:hover
+        margin-left: 98%
+  .main__1
+    max-width: 100vw
+//     display: none
