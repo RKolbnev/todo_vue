@@ -1,24 +1,11 @@
-# todo
+## Todo
+### Простой вариант системы котроля задач
+#### Используемые технологии:
+- Vue 3
+- Sass
 
-## Project setup
-```
-npm install
-```
+![Exapmle](./todo.png)
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+- [GitHub](https://github.com/RKolbnev/todo_vue)
+- [Firebase](https://todo-vue-e2829.web.app/)
+***
