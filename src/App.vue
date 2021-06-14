@@ -98,22 +98,16 @@ export default {
       }
       this.activeTask = active
     },
-
-    changeNotes (value) { //! изменить работу функции (не стоит добавать html)
+    changeNotes (value) {
       this.activeTask.task.note = value
       this.sendData({ note: value }, this.activeTask.path)
     },
-
     async search (value) {
       await fetch(this.link)
         .then(data => data.json())
         .then(data => searching(data, value))
         .then(data => {
-          if (data.length === 0) {
-            this.searchResult = ['Поиск не дал результатов']
-          } else {
-            this.searchResult = data
-          }
+          this.searchResult = data
         })
 
       function searching (data, value) {

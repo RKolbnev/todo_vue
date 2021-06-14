@@ -21,8 +21,7 @@
       </div>
       <div class="main-content">
         <div class="main-checkbox shadow">
-          <!-- <div class="steps" v-if="info.task.steps"> -->
-          <div class="steps" v-if="haveSteps()">
+          <div class="steps scroll" v-if="haveSteps()">
             <div class="step"
               v-for="step in info.task.steps"
               :key="step.id">
@@ -47,12 +46,15 @@
             <img src="../assets/notes.png" alt="">
             <span>Заметки</span>
           </div>
-          <div
-            contenteditable="true"
-            class="main-notes__content"
-            v-html="info.task.note"
+
+          <textarea
+            class="main-notes__content scroll"
+            :rows="rowsCount"
+            :value="info?.task?.note"
+            v-on:keyup.enter="addRow"
             @input="changeNotes">
-          </div>
+          </textarea>
+
         </div>
       </div>
     </div>
@@ -72,21 +74,16 @@ export default {
   },
   data () {
     return {
-      notes: '',
       addSettings: {
         logo: 'plus',
         text: 'Добавить шаг',
         buttonClass: 'add-step'
-      },
-      notesTimeoutId: null
+      }
     }
   },
   methods: {
-    changeNotes (e) { //!
-      clearTimeout(this.notesTimeoutId)
-      // this.notesTimeoutId = setTimeout(() => {
-      this.$emit('changeNotes', e.target.innerHTML)
-      // }, 500)
+    changeNotes (e) {
+      this.$emit('changeNotes', e.target.value)
     },
 
     addStep (value) {
@@ -117,6 +114,21 @@ export default {
         res = Object.entries(this.info.task?.steps)?.length > 0
       }
       return res
+    }
+  },
+  computed: {
+    rowsCount () {
+      let rows
+      if (this.info.task.note) {
+        const note = this.info.task.note
+        if ((note.split('\n').length + 1) > 5 &&
+            (note.split('\n').length + 1) < 20) {
+          rows = note.split('\n').length + 1
+        } else {
+          rows = (note.split('\n').length + 1) >= 20 ? 20 : 3
+        }
+      }
+      return rows
     }
   }
 }

@@ -46,7 +46,8 @@ export default {
       show: false,
       searchItems: {
         tasks: 'Задача',
-        steps: 'Шаг'
+        steps: 'Шаг',
+        note: 'Заметки'
       }
     }
   },
@@ -65,20 +66,21 @@ export default {
   },
   computed: {
     parseData () {
-      let res = []
-      if (this.data.length === 1) {
-        res = this.data
-      } else {
-        for (let i = 0; i < this.data.length - 1; i++) {
-          const len = this.data[i].length
-          const title = this.searchItems[this.data[i][len - 4]] ?? 'Список'
-          const value = this.data[i][len - 1]
-          if (this.data[i][len - 2] === 'title') {
-            res.push([title, value])
-          }
+      const res = {}
+      for (let i = 0; i <= this.data.length - 1; i++) {
+        const len = this.data[i].length - 1
+        let key
+        if (this.data[i][len - 1] === 'title') {
+          key = this.searchItems[this.data[i][len - 3]] ?? 'Список'
+        } else {
+          key = this.searchItems[this.data[i][len - 1]]
+        }
+        const value = this.data[i][len]
+        if (key && value) {
+          res[i] = [key, value]
         }
       }
-      return res
+      return Object.entries(res).length > 0 ? res : ['Поиск не дал результатов']
     }
   }
 }
